@@ -2,7 +2,18 @@ body {
   margin: 0;
   overflow: hidden;
   background: #000;
+  font-family: sans-serif;
+  color: white;
 }
 canvas {
   display: block;
+}
+#ui {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  background: rgba(0,0,0,0.6);
+  padding: 10px;
+  border-radius: 10px;
+  font-size: 14px;
 }
