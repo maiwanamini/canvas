@@ -3,6 +3,22 @@ import { drawMap, isBlocked, tileSize } from './world.js';
 import { Fragment } from './fragment.js';
 import { Enemy } from './enemy.js';
 
+// Instellen van audio
+const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+const bgMusic = new Audio('assets/background-music.mp3');
+bgMusic.loop = true;
+bgMusic.volume = 0.2;
+bgMusic.play();
+
+const fragmentSound = new Audio('assets/fragment-collect.mp3');
+fragmentSound.volume = 0.1;
+
+const enemyHitSound = new Audio('assets/enemy-hit.mp3');
+enemyHitSound.volume = 0.1;
+
+const portalSound = new Audio('assets/portal-open.mp3');
+portalSound.volume = 0.2;
+
 const canvas = document.getElementById("canvas");
 const ctx = canvas.getContext("2d");
 
@@ -28,6 +44,7 @@ const zones = [
   { name: "Crimson Hollow", fragmentCount: 4, enemyCount: 3 }
 ];
 
+// Verkrijg vrije tegel zonder blokkades
 function getFreeTile() {
   let x, y;
   do {
@@ -60,6 +77,7 @@ function setupZone(index) {
 }
 setupZone(currentZoneIndex);
 
+// Update de UI met zone en gezondheid
 function updateUI() {
   const status = document.getElementById("status");
   const heartDisplay = document.getElementById("hearts");
@@ -69,6 +87,7 @@ function updateUI() {
   heartDisplay.innerText = "❤️".repeat(health) + "🤍".repeat(maxHealth - health);
 }
 
+// Gloweffect voor portal
 function drawPortal() {
   const { x, y } = portalPos;
   ctx.beginPath();
@@ -76,7 +95,7 @@ function drawPortal() {
   ctx.lineWidth = 3;
   ctx.arc(x, y, 25, 0, Math.PI * 2);
   ctx.stroke();
-  ctx.fillStyle = "rgba(255,255,255,0.2)";
+  ctx.fillStyle = "rgba(255,255,255,0.5)";
   ctx.fill();
 
   const dx = player.x - x;
@@ -89,12 +108,33 @@ function drawPortal() {
     }
     health = maxHealth;
     setupZone(currentZoneIndex);
+    portalSound.play();
   }
 }
 
+// Esthetisch verbeteren: Glow-effecten voor speler en fragmenten
+function drawPlayer() {
+  ctx.beginPath();
+  ctx.arc(player.x, player.y, player.radius, 0, Math.PI * 2);
+  ctx.fillStyle = "#fff";
+  ctx.shadowColor = 'cyan';
+  ctx.shadowBlur = 20;
+  ctx.fill();
+  ctx.shadowBlur = 0;
+}
+
+function drawFragment(fragment) {
+  ctx.beginPath();
+  ctx.arc(fragment.x, fragment.y, 10, 0, Math.PI * 2);
+  ctx.fillStyle = fragment.collected ? 'gray' : 'yellow';
+  ctx.fill();
+}
+
+// Verbeterde game loop
 function gameLoop() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   drawMap(ctx);
+  drawPlayer();
   player.update(isBlocked);
   player.draw(ctx);
 
@@ -110,6 +150,7 @@ function gameLoop() {
     enemy.draw(ctx);
     if (enemy.checkCollision(player)) {
       health--;
+      enemyHitSound.play();
       if (health <= 0) {
         alert("💀 Game Over!");
         health = maxHealth;
@@ -127,8 +168,9 @@ function gameLoop() {
   fragments.forEach(fragment => {
     if (!fragment.collected && player.checkCollision(fragment)) {
       fragment.collected = true;
+      fragmentSound.play();
     }
-    fragment.draw(ctx);
+    drawFragment(fragment);
     if (fragment.collected) collectedCount++;
   });
 
