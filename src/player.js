@@ -14,9 +14,9 @@ export class Player {
   update(isBlocked) {
     const next = { x: this.x, y: this.y };
 
-    if (this.keys["ArrowUp"] || this.keys["w"]) next.y -= this.speed;
+    if (this.keys["ArrowUp"] || this.keys["z"]) next.y -= this.speed;
     if (this.keys["ArrowDown"] || this.keys["s"]) next.y += this.speed;
-    if (this.keys["ArrowLeft"] || this.keys["a"]) next.x -= this.speed;
+    if (this.keys["ArrowLeft"] || this.keys["q"]) next.x -= this.speed;
     if (this.keys["ArrowRight"] || this.keys["d"]) next.x += this.speed;
 
     const buffer = 10;
